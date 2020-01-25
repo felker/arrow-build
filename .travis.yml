@@ -21,27 +21,14 @@ if: tag IS blank
 
 matrix:
   include:
-    - os: osx
-      osx_image: xcode9.3
-      env: MB_PYTHON_VERSION=2.7
-    - os: osx
-      osx_image: xcode9.3
-      env: MB_PYTHON_VERSION=3.5
-    - os: osx
-      osx_image: xcode9.3
-      env: MB_PYTHON_VERSION=3.6
-    - os: osx
-      osx_image: xcode9.3
-      env: MB_PYTHON_VERSION=3.7
-
     - os: linux
-      dist: trusty
+      arch: ppc64le
       services:
         - docker
       if: tag IS blank
       env:
         global:
-          - PLAT=x86_64
+          - PLAT=ppc64le
           - TRAVIS_TAG=linux
       before_install: []
       before_script:
@@ -56,15 +43,9 @@ matrix:
         - git submodule update
         - popd
         - pushd arrow/python/manylinux1
-        - docker run --shm-size=2g -e UBUNTU_WHEELS=1 -e SETUPTOOLS_SCM_PRETEND_VERSION=0.14.0.RAY -e PYTHON_VERSION="2.7" -e UNICODE_WIDTH=32 -e WHEEL_VERSION=0.31.1 -v $PWD:/io -v $PWD/../../:/arrow rayproject/arrow_linux_x86_64_base:ARROW-5631 /io/build_arrow.sh
-        - docker run --shm-size=2g -e UBUNTU_WHEELS=1 -e SETUPTOOLS_SCM_PRETEND_VERSION=0.14.0.RAY -e PYTHON_VERSION="2.7" -e UNICODE_WIDTH=16 -e WHEEL_VERSION=0.31.1 -v $PWD:/io -v $PWD/../../:/arrow rayproject/arrow_linux_x86_64_base:ARROW-5631 /io/build_arrow.sh
-        - docker run --shm-size=2g -e UBUNTU_WHEELS=1 -e SETUPTOOLS_SCM_PRETEND_VERSION=0.14.0.RAY -e PYTHON_VERSION="3.5" -e UNICODE_WIDTH=16 -e WHEEL_VERSION=0.31.1 -v $PWD:/io -v $PWD/../../:/arrow rayproject/arrow_linux_x86_64_base:ARROW-5631 /io/build_arrow.sh
         - docker run --shm-size=2g -e UBUNTU_WHEELS=1 -e SETUPTOOLS_SCM_PRETEND_VERSION=0.14.0.RAY -e PYTHON_VERSION="3.6" -e UNICODE_WIDTH=16 -e WHEEL_VERSION=0.31.1 -v $PWD:/io -v $PWD/../../:/arrow rayproject/arrow_linux_x86_64_base:ARROW-5631 /io/build_arrow.sh
         - docker run --shm-size=2g -e UBUNTU_WHEELS=1 -e SETUPTOOLS_SCM_PRETEND_VERSION=0.14.0.RAY -e PYTHON_VERSION="3.7" -e UNICODE_WIDTH=16 -e WHEEL_VERSION=0.31.1 -v $PWD:/io -v $PWD/../../:/arrow rayproject/arrow_linux_x86_64_base:ARROW-5631 /io/build_arrow.sh
         - popd
-        - sudo mv arrow/python/manylinux1/dist/pyarrow-0.14.0.RAY-cp27-cp27m-linux_x86_64.whl arrow/python/manylinux1/dist/pyarrow-0.14.0.RAY-cp27-cp27m-manylinux1_x86_64.whl || true
-        - sudo mv arrow/python/manylinux1/dist/pyarrow-0.14.0.RAY-cp27-cp27mu-linux_x86_64.whl arrow/python/manylinux1/dist/pyarrow-0.14.0.RAY-cp27-cp27mu-manylinux1_x86_64.whl || true
-        - sudo mv arrow/python/manylinux1/dist/pyarrow-0.14.0.RAY-cp35-cp35m-linux_x86_64.whl arrow/python/manylinux1/dist/pyarrow-0.14.0.RAY-cp35-cp35m-manylinux1_x86_64.whl || true
         - sudo mv arrow/python/manylinux1/dist/pyarrow-0.14.0.RAY-cp36-cp36m-linux_x86_64.whl arrow/python/manylinux1/dist/pyarrow-0.14.0.RAY-cp36-cp36m-manylinux1_x86_64.whl || true
         - sudo mv arrow/python/manylinux1/dist/pyarrow-0.14.0.RAY-cp37-cp37m-linux_x86_64.whl arrow/python/manylinux1/dist/pyarrow-0.14.0.RAY-cp37-cp37m-manylinux1_x86_64.whl || true
         - sudo mv arrow/python/manylinux1/dist/* dist/
@@ -73,7 +54,7 @@ matrix:
 
 env:
   global:
-    - PLAT=x86_64
+    - PLAT=ppc64le
     - TRAVIS_TAG=build-385-wheel-osx-cp37m
     - MACOSX_DEPLOYMENT_TARGET="10.9"
     - PYARROW_VERSION=0.14.0.RAY
@@ -129,18 +110,18 @@ install:
   - mv -v arrow/python/dist/* dist/
 
 
-deploy:
-  provider: s3
-  access_key_id: $AWS_ACCESS_KEY_ID
-  secret_access_key:
-    secure: $AWS_SECRET_ACCESS_KEY
-  bucket: arrow-wheels
-  skip_cleanup: true
-  region: us-west-2
-  local-dir: dist/
-  upload-dir: $TRAVIS_COMMIT
-  on:
-    repo: ray-project/arrow-build
+# deploy:
+#   provider: s3
+#   access_key_id: $AWS_ACCESS_KEY_ID
+#   secret_access_key:
+#     secure: $AWS_SECRET_ACCESS_KEY
+#   bucket: arrow-wheels
+#   skip_cleanup: true
+#   region: us-west-2
+#   local-dir: dist/
+#   upload-dir: $TRAVIS_COMMIT
+#   on:
+#     repo: ray-project/arrow-build
 notifications:
   email:
-  - pcmoritz@gmail.com
+  - felker@anl.gov
